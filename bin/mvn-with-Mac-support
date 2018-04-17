@@ -1,0 +1,45 @@
+#!/bin/sh
+# --------------------------------------------------------------------
+JAVA_VERSION=jdk1.8.0_latest
+
+if [ ! -n "$VIEW" ]; then
+        if [ "$OSTYPE" == "cygwin" ]; then
+                VIEW=`pwd | cut -d/ -f1-5`
+                export JAVA_HOME=${VIEW}/s3_tools/jdks/win/${JAVA_VERSION}
+        else
+                if [ "$OSTYPE" == "darwin15" ]; then
+                        TYPEP0=`type -p $0`
+                        MVN_BIN=$(basename $TYPEP0)
+                        MVN_PATH=$(dirname $TYPEP0)
+                        NEWPATH=${MVN_PATH}/../../
+                        pushd ${NEWPATH}
+                        VIEW=$(pwd)
+                        popd
+                        export JAVA_HOME=$(/usr/libexec/java_home)
+                else
+                        #VIEW=/vob
+                        #VIEW=${VOB_DIR:=/vob}
+                        #VIEW=${VOB_DIR:=${VIEW}}
+                        TYPEP0=`type -p $0`
+                        MVN_BIN=$(basename $TYPEP0)
+                        VIEW=$(cd $(dirname $TYPEP0)/../../; readlink -f `pwd`)
+                        # export JAVA_HOME=${JAVA_HOME:=/vob/s3_tools/jdks/lnx/${JAVA_VERSION}}
+                        export JAVA_HOME=${VIEW}/s3_tools/jdks/lnx/${JAVA_VERSION}
+                fi
+        fi
+fi
+
+#export MAVEN_OPTS=-Xmx512m
+#export MAVEN_OPTS="${MAVEN_OPTS} -DsocksProxyHost=proxy-sjc-1.cisco.com -DsocksProxyPort=8080"
+#export MAVEN_OPTS="-Xmx2048m -XX:MaxPermSize=512m"
+export MAVEN_OPTS=-Xmx2048m
+
+echo
+echo "CWD        = $PWD"
+echo "VIEW       = $VIEW"
+echo "JAVA_HOME  = $JAVA_HOME"
+echo "M2_HOME    = $M2_HOME"
+echo "MAVEN_OPTS = $MAVEN_OPTS"
+echo
+
+${VIEW}/s3_tools/maven/current/bin/mvn-with-Mac-support "$@"
